@@ -74,6 +74,25 @@ DATASET_NORMALIZATION = {
     'STL10': ((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
 }
 
+class CustomImageDataset(Dataset):
+    def __init__(self, annotations_df, img_dir, transform=1, target_transform=None):
+        self.img_labels = annotations_df
+        self.img_dir = img_dir
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.img_labels)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
+        image = read_image(img_path)
+        label = self.img_labels.iloc[idx, 1]
+        if self.transform:
+#             image = self.transform(image)
+            image = image.float()
+        return image, label
+
 
 def sort_by_label(X,Y):
     idxs = np.argsort(Y)

@@ -1,4 +1,4 @@
-""" Main module for optimal transport dataset distance.
+ """ Main module for optimal transport dataset distance.
 
 Throught this module, source and target are often used to refer to the two datasets
 being compared. This notation is legacy from NLP, and does not carry other particular
