@@ -82,7 +82,6 @@ def calculate_similarity(datasets, dataset_names):
                                                 p = 2, entreg = 1e-1,
                                                 device='cuda')
                 d = similarity.distance(maxsamples = 1000)
-
                 # Store the calculated similarity in the matrix for both directions
                 similarity_matrix[(d1_name, d2_name)] = d
                 similarity_matrix[(d2_name, d1_name)] = d
