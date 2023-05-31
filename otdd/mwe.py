@@ -50,9 +50,6 @@ def check_folders_exist(folders):
     return True
 
 
-def dataset_loader(dataset_name):
-    import CustomImageDataset
-
 
 def calculate_similarity(datasets, dataset_names):
     embedder = resnet18(pretrained=True).eval()
