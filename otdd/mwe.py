@@ -24,8 +24,10 @@ class CustomImageDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.targets = torch.tensor(self.img_labels.iloc[:, 1].tolist())  # Convert targets to a tensor
+
     def __len__(self):
         return len(self.img_labels)
+
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)
@@ -35,6 +37,7 @@ class CustomImageDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
+
     @property
     def classes(self):
         return torch.sort(torch.unique(self.targets))[0].tolist()
@@ -46,7 +49,9 @@ def check_folders_exist(folders):
             return False
     return True
 
-def dataset_loader(dataset_name, CustomImageDataset=CustomImageDataset):
+
+def dataset_loader(dataset_name):
+    import CustomImageDataset
     df = pd.read_csv(f'{dataset_name}/labels.csv')
     le = preprocessing.LabelEncoder()
     le.fit(df['CATEGORY'])
