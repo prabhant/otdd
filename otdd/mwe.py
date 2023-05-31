@@ -46,7 +46,7 @@ def check_folders_exist(folders):
             return False
     return True
 
-def dataset_loader(dataset_name):
+def dataset_loader(dataset_name, CustomImageDataset=CustomImageDataset):
     df = pd.read_csv(f'{dataset_name}/labels.csv')
     le = preprocessing.LabelEncoder()
     le.fit(df['CATEGORY'])
