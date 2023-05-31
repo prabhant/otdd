@@ -52,16 +52,9 @@ def check_folders_exist(folders):
 
 def dataset_loader(dataset_name):
     import CustomImageDataset
-    df = pd.read_csv(f'{dataset_name}/labels.csv')
-    le = preprocessing.LabelEncoder()
-    le.fit(df['CATEGORY'])
-    df['encoded_labels'] = le.transform(df['CATEGORY'])
-    n_classes = len(df['encoded_labels'].unique())
-    train_data = CustomImageDataset(annotations_df = df[['FILE_NAME', 'encoded_labels']], img_dir = f'{dataset_name}/images')
-    train_queue = torch.utils.data.DataLoader(train_data, batch_size=32,pin_memory=True)
-    return train_queue
 
-def calculate_similarity(datasets):
+
+def calculate_similarity(datasets, dataset_names):
     embedder = resnet18(pretrained=True).eval()
     embedder.fc = torch.nn.Identity()
     for p in embedder.parameters():
@@ -76,15 +69,16 @@ def calculate_similarity(datasets):
     similarity_matrix = {}
     for i in range(len(datasets)):
         for j in range(i + 1, len(datasets)):
-            d1 = dataset_loader(datasets[i])
-            d2 = dataset_loader(datasets[j])
-            
+            d1 = datasets[i]
+            d2 = datasets[j]
+            d1_name = dataset_names[i]
+            d2_name = dataset_names[j]
             # Check if the similarity has already been calculated
-            if (d1, d2) in similarity_matrix:
-                similarity = similarity_matrix[(d1, d2)]
+            if (d1_name, d2_name) in similarity_matrix:
+                similarity = similarity_matrix[(d1_name, d2_name)]
             else:
                 # Calculate the similarity using your existing 'dist' function
-                similarity =  DatasetDistance(train_queue, train_queue,
+                similarity =  DatasetDistance(d1, d2,
                                                 inner_ot_method = 'exact',
                                                 debiased_loss = True,
                                                 feature_cost = feature_cost,
@@ -96,8 +90,8 @@ def calculate_similarity(datasets):
                 d = similarity.distance(maxsamples = 1000)
 
                 # Store the calculated similarity in the matrix for both directions
-                similarity_matrix[(d1, d2)] = similarity
-                similarity_matrix[(d2, d1)] = similarity
+                similarity_matrix[(d1_name, d2_name)] = d
+                similarity_matrix[(d2_name, d1_name)] = d
             
             # Output the similarity for the pair (d1, d2)
             print(f"Similarity between d{i+1} and d{j+1}: {similarity}")
@@ -125,8 +119,18 @@ set2_names = ["ACT_410_Micro","FNG_Micro","PLT_DOC_Micro","TEX_ALOT_Micro","AWA_
               "INS_Micro","RSD_Micro","PRT_Micro","BTS_Micro"]
 dataset_list = set0_names+set1_names+set2_names
 
+data_list = []
+for dataset_name in dataset_list:
+    df = pd.read_csv(f'{dataset_name}/labels.csv')
+    le = preprocessing.LabelEncoder()
+    le.fit(df['CATEGORY'])
+    df['encoded_labels'] = le.transform(df['CATEGORY'])
+    n_classes = len(df['encoded_labels'].unique())
+    train_data = CustomImageDataset(annotations_df = df[['FILE_NAME', 'encoded_labels']], img_dir = f'{dataset_name}/images')
+    train_queue = torch.utils.data.DataLoader(train_data, batch_size=32,pin_memory=True)
+    data_list.append(train_queue)
 
-similarity_matrix = calculate_similarity(dataset_list)
+similarity_matrix = calculate_similarity(data_list, dataset_names=dataset_list)
 
 save_similarity_matrix(similarity_matrix, dataset_list, "similarity_matrix.csv")
 
