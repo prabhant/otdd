@@ -24,10 +24,8 @@ class CustomImageDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.targets = torch.tensor(self.img_labels.iloc[:, 1].tolist())  # Convert targets to a tensor
-
     def __len__(self):
         return len(self.img_labels)
-
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)
@@ -37,7 +35,6 @@ class CustomImageDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
-
     @property
     def classes(self):
         return torch.sort(torch.unique(self.targets))[0].tolist()
