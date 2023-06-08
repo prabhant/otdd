@@ -16,6 +16,10 @@ from torchvision.models import resnet18
 import pandas as pd
 from otdd.pytorch.datasets import load_torchvision_data
 from otdd.pytorch.distance import DatasetDistance, FeatureCost
+import wandb
+
+wandb.init(project="warm-started-nas", entity="prabhant", group='OTDD Mini')
+
 
 class CustomImageDataset(Dataset):
     def __init__(self, annotations_df, img_dir, transform=1, target_transform=None):
@@ -94,23 +98,21 @@ def calculate_similarity(datasets, dataset_names):
 
 def save_similarity_matrix(similarity_matrix, dataset_names, filename):
     # Create a list of dataset names for the DataFrame index and columns
-    index = dataset_names
-    columns = dataset_names
-    
+
     # Convert the similarity matrix to a DataFrame
-    df = pd.DataFrame(similarity_matrix, index=index, columns=columns)
+    df = pd.DataFrame(similarity_matrix)
     
     # Save the DataFrame as a CSV file
     df.to_csv(filename)
 
 
-set0_names = ["BCT_Micro","PLK_Micro","FLW_Micro","SPT_Micro",
-"BRD_Micro","PLT_VIL_Micro","TEX_Micro",
-"CRS_Micro","RESISC_Micro"]
-set1_names = ["ACT_40_Micro","INS_2_Micro","PLT_NET_Micro","TEX_DTD_Micro","APL_Micro",
-"PNU_Micro","DOG_Micro","MED_LF_Micro","RSICB_Micro"]
-set2_names = ["ACT_410_Micro","FNG_Micro","PLT_DOC_Micro","TEX_ALOT_Micro","AWA_Micro",
-              "INS_Micro","RSD_Micro","PRT_Micro","BTS_Micro"]
+set0_names = ["BCT_Mini","PLK_Mini","FLW_Mini","SPT_Mini",
+"BRD_Mini","PLT_VIL_Mini","TEX_Mini",
+"CRS_Mini","RESISC_Mini"]
+set1_names = ["ACT_40_Mini","INS_2_Mini","PLT_NET_Mini","TEX_DTD_Mini","APL_Mini",
+"PNU_Mini","DOG_Mini","MED_LF_Mini","RSICB_Mini"]
+set2_names = ["ACT_410_Mini","FNG_Mini","PLT_DOC_Mini","TEX_ALOT_Mini","AWA_Mini",
+              "INS_Mini","RSD_Mini","PRT_Mini","BTS_Mini"]
 dataset_list = set0_names+set1_names+set2_names
 
 data_list = []
@@ -126,7 +128,7 @@ for dataset_name in dataset_list:
 
 similarity_matrix = calculate_similarity(data_list, dataset_names=dataset_list)
 
-save_similarity_matrix(similarity_matrix, dataset_list, "similarity_matrix.csv")
+save_similarity_matrix(similarity_matrix, dataset_list, "similarity_mini.csv")
 
 
 
